@@ -803,15 +803,8 @@
 
         if (ball.z < 0) {
           ball.z = 0;
-          if (Math.abs(ball.vz) > 85) {
-            ball.vz = Math.abs(ball.vz) * 0.42;
-            ball.vx *= 0.82;
-            ball.vy *= 0.82;
-            playTone(150, 0.06);
-          } else {
-            awardPoint(ball.x < court.netX ? "red" : "blue");
-            return;
-          }
+          awardPoint(ball.x < court.netX ? "red" : "blue");
+          return;
         }
 
         if (ball.y < court.top + ball.r || ball.y > court.bottom - ball.r) {

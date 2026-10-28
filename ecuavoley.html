@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071b26">
+  <title>ECUAVÓLEY | Juego de cancha</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f8f6;
+      --muted: #a9bfbd;
+      --panel: rgba(8, 29, 39, .92);
+      --cyan: #45d6dc;
+      --gold: #ffd166;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(32, 99, 104, .28), transparent 58%),
+        linear-gradient(160deg, #102d38, #07151e 72%);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .app {
+      width: min(1120px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 18px clamp(12px, 3vw, 30px) 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: clamp(1.2rem, 3vw, 1.7rem);
+      font-weight: 900;
+      letter-spacing: .14em;
+    }
+
+    .brand span { color: var(--gold); }
+
+    .status {
+      color: var(--muted);
+      font-size: .88rem;
+      text-align: right;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 10px clamp(12px, 3vw, 24px);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 14px;
+      background: linear-gradient(120deg, rgba(20, 85, 117, .9), rgba(11, 33, 45, .96) 50%, rgba(139, 43, 48, .82));
+      box-shadow: 0 10px 28px rgba(0,0,0,.2);
+    }
+
+    .team-score {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+
+    .team-score.red { justify-content: flex-end; }
+    .team-score .name { font-size: clamp(.85rem, 2.5vw, 1rem); }
+    .team-score .points { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1; }
+    .blue .name { color: #87dcff; }
+    .red .name { color: #ffaaa5; }
+
+    .serve-indicator {
+      min-width: 92px;
+      color: var(--gold);
+      text-align: center;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .serve-indicator strong {
+      display: block;
+      margin-top: 3px;
+      color: white;
+      font-size: .86rem;
+      letter-spacing: .07em;
+    }
+
+    .touch-count {
+      color: #d3e2df;
+      text-align: center;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+
+    .position-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .position-picker button {
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 9px;
+      background: rgba(255,255,255,.07);
+      color: white;
+      cursor: pointer;
+    }
+
+    .position-picker button[aria-pressed="true"] {
+      border-color: var(--gold);
+      background: rgba(255,209,102,.16);
+      color: var(--gold);
+    }
+
+    .aim-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .aim-picker button {
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 9px;
+      background: rgba(255,255,255,.07);
+      color: white;
+      cursor: pointer;
+    }
+
+    .aim-picker button[aria-pressed="true"] {
+      border-color: var(--cyan);
+      background: rgba(69,214,220,.15);
+      color: var(--cyan);
+    }
+
+    .aim-picker button:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    .difficulty-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .difficulty-picker button {
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 9px;
+      background: rgba(255,255,255,.07);
+      color: white;
+      cursor: pointer;
+    }
+
+    .difficulty-picker button[aria-pressed="true"] {
+      border-color: var(--gold);
+      background: rgba(255,209,102,.16);
+      color: var(--gold);
+    }
+
+    .difficulty-picker button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .position-picker button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .court-frame {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.19);
+      border-radius: 16px;
+      background: #153a34;
+      box-shadow: 0 20px 50px rgba(0,0,0,.32);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 5 / 3;
+      touch-action: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(3, 15, 21, .68);
+      backdrop-filter: blur(5px);
+      text-align: center;
+    }
+
+    .overlay[hidden] { display: none; }
+
+    .dialog {
+      width: min(470px, 100%);
+      padding: clamp(22px, 5vw, 36px);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+
+    .dialog h2 {
+      margin: 0 0 10px;
+      color: var(--gold);
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      letter-spacing: .09em;
+    }
+
+    .dialog p {
+      margin: 0 0 20px;
+      color: #d4e0de;
+      line-height: 1.55;
+    }
+
+    .dialog .small-title {
+      margin-bottom: 5px;
+      color: var(--cyan);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .18em;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin: 16px 0 20px;
+    }
+
+    .key-card {
+      padding: 9px 5px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 9px;
+      background: rgba(255,255,255,.055);
+      color: #c4d5d3;
+      font-size: .72rem;
+    }
+
+    kbd {
+      display: block;
+      margin-bottom: 5px;
+      color: white;
+      font-size: .95rem;
+      font-weight: 900;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .toolbar button {
+      min-height: 42px;
+      padding: 9px 15px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 10px;
+      background: rgba(255,255,255,.07);
+      color: white;
+      cursor: pointer;
+      transition: background .16s ease, transform .16s ease, border-color .16s ease;
+    }
+
+    .toolbar button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.42);
+      background: rgba(255,255,255,.14);
+    }
+
+    .toolbar button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .toolbar .primary {
+      border-color: #6be4e4;
+      background: linear-gradient(135deg, #15a7a7, #1478a0);
+      font-weight: 800;
+    }
+
+    .toolbar .primary:hover { background: linear-gradient(135deg, #24bcbc, #1689b4); }
+
+    .toolbar .sound-on { border-color: var(--gold); color: var(--gold); }
+
+    .hint {
+      margin: -4px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: .82rem;
+    }
+
+    .mobile-controls {
+      display: none;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(2, 46px);
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .mobile-controls button {
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      color: white;
+      font-weight: 900;
+      touch-action: none;
+    }
+
+    .mobile-controls button:active { background: rgba(69,214,220,.4); }
+    .mobile-controls .up { grid-column: 2; grid-row: 1; }
+    .mobile-controls .left { grid-column: 1; grid-row: 2; }
+    .mobile-controls .down { grid-column: 2; grid-row: 2; }
+    .mobile-controls .right { grid-column: 3; grid-row: 2; }
+
+    @media (max-width: 600px) {
+      .app { gap: 10px; padding-top: 12px; }
+      .status { max-width: 140px; font-size: .72rem; }
+      .scoreboard { gap: 5px; padding: 9px 10px; }
+      .team-score { gap: 6px; letter-spacing: .07em; }
+      .serve-indicator { min-width: 76px; font-size: .58rem; }
+      .serve-indicator strong { font-size: .72rem; }
+      .touch-count { font-size: .72rem; }
+      .toolbar button { flex: 1 1 42%; padding: 8px; font-size: .84rem; }
+      .mobile-controls { display: grid; }
+      .hint { font-size: .72rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <h1 class="brand">ECUA<span>VÓLEY</span></h1>
+      <div class="status" id="statusText" aria-live="polite">Listo para jugar</div>
+    </header>
+
+    <section class="scoreboard" aria-label="Marcador">
+      <div class="team-score blue">
+        <span class="name">AZUL</span>
+        <span class="points" id="blueScore">0</span>
+      </div>
+      <div class="serve-indicator">Saque<strong id="serveTeam">AZUL</strong></div>
+      <div class="team-score red">
+        <span class="points" id="redScore">0</span>
+        <span class="name">ROJO</span>
+      </div>
+    </section>
+    <div class="touch-count" id="touchCount" aria-live="polite">Toques AZUL: 0/3</div>
+    <div class="position-picker" role="group" aria-label="Seleccionar jugador azul">
+      <span>Controlar posición:</span>
+      <button type="button" data-position="0" aria-pressed="true">1</button>
+      <button type="button" data-position="1" aria-pressed="false">2</button>
+      <button type="button" data-position="2" aria-pressed="false">3</button>
+      <span id="selectedPositionLabel">Posición 1 · WASD</span>
+    </div>
+    <div class="aim-picker" role="group" aria-label="Elegir dirección del golpe">
+      <span>Dirección del balón:</span>
+      <button type="button" data-aim="0" aria-pressed="false">↗ Arriba · J</button>
+      <button type="button" data-aim="1" aria-pressed="true">→ Centro · K</button>
+      <button type="button" data-aim="2" aria-pressed="false">↘ Abajo · L</button>
+    </div>
+    <div class="difficulty-picker" role="group" aria-label="Elegir dificultad">
+      <span>Dificultad:</span>
+      <button type="button" data-difficulty="easy" aria-pressed="false">Fácil</button>
+      <button type="button" data-difficulty="medium" aria-pressed="true">Medio</button>
+      <button type="button" data-difficulty="hard" aria-pressed="false">Difícil</button>
+    </div>
+
+    <section class="court-frame" aria-label="Cancha de ecuavóley">
+      <canvas id="gameCanvas" aria-label="Cancha de juego"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="dialog">
+          <div class="small-title">EL DEPORTE DE ECUADOR</div>
+          <h2 id="overlayTitle">ECUAVÓLEY</h2>
+          <p id="overlayText">¡Entra a la cancha! El saque se realiza automáticamente. Mueve al jugador azul, elige la dirección con J/K/L y golpea con ESPACIO o remata con E. Gana al llegar a 12 con dos puntos de diferencia.</p>
+          <div class="controls">
+            <div class="key-card"><kbd>W A S D</kbd>Mover</div>
+            <div class="key-card"><kbd>ESPACIO</kbd>Golpear</div>
+            <div class="key-card"><kbd>E</kbd>Rematar</div>
+            <div class="key-card"><kbd>ESC</kbd>Pausar</div>
+          </div>
+          <div class="toolbar">
+            <button class="primary" id="overlayStart">Iniciar partida</button>
+            <button id="overlayInstructions">Ver instrucciones</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="toolbar" aria-label="Controles del juego">
+      <button class="primary" id="startButton">Iniciar partida</button>
+      <button id="pauseButton">Pausar</button>
+      <button id="resetButton">Reiniciar partido</button>
+      <button id="instructionsButton">Instrucciones</button>
+      <button id="menuButton">Menú principal</button>
+      <button id="soundButton" aria-pressed="false">Sonido: apagado</button>
+    </nav>
+    <div class="mobile-controls" aria-label="Movimiento táctil">
+      <button class="up" data-key="w" aria-label="Mover arriba">▲</button>
+      <button class="left" data-key="a" aria-label="Mover izquierda">◀</button>
+      <button class="down" data-key="s" aria-label="Mover abajo">▼</button>
+      <button class="right" data-key="d" aria-label="Mover derecha">▶</button>
+    </div>
+    <p class="hint">Posición 1, 2 o 3 · WASD para moverte · J/K/L eligen dirección · ESPACIO golpea · E remata · ESC pausa</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      // Toda la lógica y el dibujo del juego viven dentro de este archivo.
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const overlay = document.getElementById("overlay");
+      const overlayTitle = document.getElementById("overlayTitle");
+      const overlayText = document.getElementById("overlayText");
+      const statusText = document.getElementById("statusText");
+      const scoreEls = {
+        blue: document.getElementById("blueScore"),
+        red: document.getElementById("redScore")
+      };
+      const serveTeamEl = document.getElementById("serveTeam");
+      const touchCountEl = document.getElementById("touchCount");
+      const selectedPositionLabel = document.getElementById("selectedPositionLabel");
+      const positionButtons = [...document.querySelectorAll("[data-position]")];
+      const aimButtons = [...document.querySelectorAll("[data-aim]")];
+      const difficultyButtons = [...document.querySelectorAll("[data-difficulty]")];
+
+      const W = 1000;
+      const H = 600;
+      const court = { left: 100, right: 900, top: 100, bottom: 500, netX: 500 };
+      const keys = new Set();
+      const players = [];
+      const ball = { x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, r: 14 };
+      const scores = { blue: 0, red: 0 };
+      const formations = [
+        { x: 205, y: 300 }, { x: 330, y: 205 }, { x: 330, y: 395 },
+        { x: 795, y: 300 }, { x: 670, y: 205 }, { x: 670, y: 395 }
+      ];
+
+      let state = "menu";
+      let serving = "blue";
+      let controlledPosition = 0;
+      let aimLane = 1;
+      let difficulty = "medium";
+      const difficultySettings = {
+        easy: { speed: 115, hitReach: 53, aimError: 56 },
+        medium: { speed: 180, hitReach: 70, aimError: 24 },
+        hard: { speed: 255, hitReach: 92, aimError: 0 }
+      };
+      let touchTeam = null;
+      let touches = 0;
+      let pointTimer = 0;
+      let serveTimer = 0;
+      let serveInFlight = false;
+      let rallyMessage = "";
+      let messageTimer = 0;
+      let previousTime = 0;
+      let soundEnabled = false;
+      let audioContext = null;
+      let lastBlueHit = 0;
+
+      for (let i = 0; i < 6; i++) {
+        players.push({
+          x: formations[i].x,
+          y: formations[i].y,
+          homeX: formations[i].x,
+          homeY: formations[i].y,
+          team: i < 3 ? "blue" : "red",
+          controlled: i === controlledPosition,
+          hitCooldown: 0,
+          swing: 0
+        });
+      }
+
+      function resizeCanvas() {
+        const bounds = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(1, Math.round(bounds.width * dpr));
+        canvas.height = Math.max(1, Math.round(bounds.height * dpr));
+        const scale = Math.min(canvas.width / W, canvas.height / H);
+        const offsetX = (canvas.width - W * scale) / 2;
+        const offsetY = (canvas.height - H * scale) / 2;
+        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+      }
+
+      function playTone(frequency, duration = 0.12, type = "sine") {
+        if (!soundEnabled) return;
+        try {
+          audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+          if (audioContext.state === "suspended") audioContext.resume();
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          oscillator.type = type;
+          oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + duration);
+        } catch (error) {
+          statusText.textContent = "El audio no está disponible en este navegador";
+        }
+      }
+
+      function updateScoreboard() {
+        scoreEls.blue.textContent = String(scores.blue);
+        scoreEls.red.textContent = String(scores.red);
+        serveTeamEl.textContent = serving === "blue" ? "AZUL" : "ROJO";
+        const nextTeam = touchTeam || serving;
+        touchCountEl.textContent = `Toques ${nextTeam === "red" ? "ROJO" : "AZUL"}: ${touches}/3`;
+      }
+
+      function selectPosition(position) {
+        controlledPosition = position;
+        players.forEach((player, index) => {
+          player.controlled = player.team === "blue" && index === position;
+        });
+        positionButtons.forEach((button, index) => {
+          button.setAttribute("aria-pressed", String(index === position));
+        });
+        selectedPositionLabel.textContent = `Posición ${position + 1} · WASD`;
+        if (state === "playing") statusText.textContent = `Controlas la posición ${position + 1}`;
+      }
+
+      function selectAim(lane) {
+        aimLane = lane;
+        aimButtons.forEach((button, index) => {
+          button.setAttribute("aria-pressed", String(index === lane));
+        });
+      }
+
+      function selectDifficulty(level) {
+        difficulty = level;
+        difficultyButtons.forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.difficulty === level));
+        });
+      }
+
+      function resetTouches(nextTeam = null) {
+        touchTeam = nextTeam;
+        touches = 0;
+        updateScoreboard();
+      }
+
+      function resetPositions() {
+        resetTouches(serving);
+        players.forEach((player, index) => {
+          player.x = formations[index].x;
+          player.y = formations[index].y;
+          player.homeX = formations[index].x;
+          player.homeY = formations[index].y;
+          player.hitCooldown = 0;
+          player.swing = 0;
+        });
+        const blueServing = serving === "blue";
+        ball.x = blueServing ? 205 : 795;
+        ball.y = 300;
+        ball.z = 18;
+        ball.vx = 0;
+        ball.vy = 0;
+        ball.vz = 0;
+      }
+
+      function startMatch() {
+        if (state === "winner") resetMatch();
+        state = "serve";
+        overlay.hidden = true;
+        statusText.textContent = `Saque de ${serving === "blue" ? "AZUL" : "ROJO"}...`;
+        rallyMessage = "¡SAQUE!";
+        messageTimer = 1.1;
+        serveTimer = 0.65;
+        serveInFlight = false;
+        resetPositions();
+        updateScoreboard();
+      }
+
+      function launchServe() {
+        state = "playing";
+        serveInFlight = true;
+        statusText.textContent = "¡A jugar!";
+        rallyMessage = "¡SAQUE!";
+        messageTimer = 0.9;
+        tryHit(players[serving === "blue" ? 0 : 3], false);
+      }
+
+      function resetMatch() {
+        scores.blue = 0;
+        scores.red = 0;
+        serving = "blue";
+        pointTimer = 0;
+        rallyMessage = "";
+        messageTimer = 0;
+        state = "menu";
+        resetPositions();
+        updateScoreboard();
+        showOverlay("ECUAVÓLEY", "¡Entra a la cancha! El saque se realiza automáticamente. Mueve al jugador azul, elige la dirección con J/K/L y golpea con ESPACIO o remata con E. Gana al llegar a 12 con dos puntos de diferencia.", true);
+        statusText.textContent = "Partido reiniciado";
+      }
+
+      function showOverlay(title, text, showStart) {
+        overlayTitle.textContent = title;
+        overlayText.textContent = text;
+        document.getElementById("overlayStart").textContent = showStart ? "Iniciar partida" : "Continuar";
+        overlay.hidden = false;
+      }
+
+      function togglePause() {
+        if (state === "playing") {
+          state = "paused";
+          statusText.textContent = "Partida pausada";
+          showOverlay("PAUSA", "Respira, estratega. Cuando estés listo, continúa el partido.", false);
+        } else if (state === "paused") {
+          state = "playing";
+          overlay.hidden = true;
+          statusText.textContent = "¡A jugar!";
+        }
+      }
+
+      function returnToMenu() {
+        state = "menu";
+        resetPositions();
+        showOverlay("ECUAVÓLEY", "¡Entra a la cancha! El saque se realiza automáticamente. Mueve al jugador azul, elige la dirección con J/K/L y golpea con ESPACIO o remata con E. Gana al llegar a 12 con dos puntos de diferencia.", true);
+        statusText.textContent = "Menú principal";
+      }
+
+      function awardPoint(team) {
+        if (state !== "playing") return;
+        scores[team]++;
+        serving = team;
+        serveInFlight = false;
+        resetTouches(serving);
+        updateScoreboard();
+        const other = team === "blue" ? "red" : "blue";
+        if (scores[team] >= 12 && scores[team] - scores[other] >= 2) {
+          state = "winner";
+          rallyMessage = "¡GANADOR!";
+          messageTimer = 999;
+          statusText.textContent = `¡AZUL! ${scores.blue} - ${scores.red} ¡ROJO!`;
+          playTone(740, 0.4, "triangle");
+          showOverlay(`¡${team === "blue" ? "AZUL" : "ROJO"} GANADOR!`, `Marcador final: AZUL ${scores.blue} — ${scores.red} ROJO. ¡Gran partido!`, true);
+          document.getElementById("overlayStart").textContent = "Jugar otra vez";
+          return;
+        }
+        rallyMessage = "¡PUNTO!";
+        messageTimer = 1.25;
+        pointTimer = 1.4;
+        state = "point";
+        statusText.textContent = `Punto para ${team === "blue" ? "AZUL" : "ROJO"}`;
+        playTone(520, 0.18, "triangle");
+      }
+
+      function clampPlayer(player) {
+        const leftLimit = player.team === "blue" ? court.left + 23 : court.netX + 23;
+        const rightLimit = player.team === "blue" ? court.netX - 23 : court.right - 23;
+        player.x = Math.max(leftLimit, Math.min(rightLimit, player.x));
+        player.y = Math.max(court.top + 23, Math.min(court.bottom - 23, player.y));
+      }
+
+      function tryHit(player, spike, reachOverride = null) {
+        if (state !== "playing" || player.hitCooldown > 0) return false;
+        const dx = ball.x - player.x;
+        const dy = ball.y - player.y;
+        const distance = Math.hypot(dx, dy);
+        const reach = reachOverride === null ? (spike ? 94 : 78) : reachOverride;
+        if (distance > reach || ball.z > 320) return false;
+        if (touchTeam !== player.team) {
+          touchTeam = player.team;
+          touches = 0;
+        }
+        touches++;
+        if (touches > 3) {
+          awardPoint(player.team === "blue" ? "red" : "blue");
+          return false;
+        }
+        updateScoreboard();
+        const direction = player.team === "blue" ? 1 : -1;
+        ball.vx = direction * (spike ? 420 : 270);
+        ball.vz = spike ? 500 : 440;
+        if (player.team === "blue") {
+          const targetY = court.top + 55 + aimLane * ((court.bottom - court.top - 110) / 2);
+          const flightTime = (ball.vz + Math.sqrt(ball.vz * ball.vz + 2 * 620 * ball.z)) / 620;
+          ball.vy = (targetY - ball.y) / flightTime;
+        } else {
+          const targetY = 300 + (ball.y - 300) * 0.35;
+          ball.vy = Math.max(-210, Math.min(210, (targetY - ball.y) * 1.2));
+        }
+        ball.z = Math.max(ball.z, 25);
+        player.hitCooldown = 0.38;
+        player.swing = 0.28;
+        if (player.team === "blue") lastBlueHit = performance.now();
+        rallyMessage = spike ? "¡REMATE!" : "¡GOLPE!";
+        messageTimer = 0.72;
+        playTone(spike ? 240 : 330, 0.1, "triangle");
+        return true;
+      }
+
+      function updatePlayer(player, dt, index) {
+        player.hitCooldown = Math.max(0, player.hitCooldown - dt);
+        player.swing = Math.max(0, player.swing - dt);
+
+        if (player.controlled) {
+          const speed = 250;
+          if (keys.has("w") || keys.has("arrowup")) player.y -= speed * dt;
+          if (keys.has("s") || keys.has("arrowdown")) player.y += speed * dt;
+          if (keys.has("a") || keys.has("arrowleft")) player.x -= speed * dt;
+          if (keys.has("d") || keys.has("arrowright")) player.x += speed * dt;
+        } else {
+          let targetX = player.homeX;
+          let targetY = player.homeY;
+          const ballOnSide = player.team === "blue" ? ball.x < court.netX : ball.x > court.netX;
+          const ai = difficultySettings[difficulty];
+          if (player.team === "red" && ballOnSide) {
+            const isClosest = players.slice(3).every((other, otherIndex) =>
+              other === player || Math.hypot(other.x - ball.x, other.y - ball.y) >= Math.hypot(player.x - ball.x, player.y - ball.y)
+            );
+            if (isClosest) {
+              targetX = Math.max(court.netX + 42, Math.min(court.right - 45, ball.x - 42));
+              const missDirection = player.homeY < 300 ? -1 : 1;
+              targetY = Math.max(court.top + 35, Math.min(court.bottom - 35, ball.y + missDirection * ai.aimError));
+            } else {
+              targetX += (ball.x - player.homeX) * 0.1;
+              targetY += (ball.y - player.homeY) * 0.12;
+            }
+          } else if (player.team === "blue" && ballOnSide && index !== 0) {
+            targetX += (ball.x - player.homeX) * 0.16;
+            targetY += (ball.y - player.homeY) * 0.2;
+          }
+          const dx = targetX - player.x;
+          const dy = targetY - player.y;
+          const distance = Math.hypot(dx, dy);
+          if (distance > 3) {
+            const step = Math.min(distance, player.team === "red" ? ai.speed * dt : 190 * dt);
+            player.x += dx / distance * step;
+            player.y += dy / distance * step;
+          }
+          if (player.team === "red" && ballOnSide && touchTeam === player.team && !serveInFlight) {
+            tryHit(player, ball.z < 65 && ball.x < court.netX + 170, ai.hitReach);
+          }
+        }
+        clampPlayer(player);
+      }
+
+      function updateBall(dt) {
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+        ball.z += ball.vz * dt;
+        ball.vz -= 620 * dt;
+
+        if (ball.z < 0) {
+          ball.z = 0;
+          if (Math.abs(ball.vz) > 85) {
+            ball.vz = Math.abs(ball.vz) * 0.42;
+            ball.vx *= 0.82;
+            ball.vy *= 0.82;
+            playTone(150, 0.06);
+          } else {
+            awardPoint(ball.x < court.netX ? "red" : "blue");
+            return;
+          }
+        }
+
+        if (ball.y < court.top + ball.r || ball.y > court.bottom - ball.r) {
+          ball.y = Math.max(court.top + ball.r, Math.min(court.bottom - ball.r, ball.y));
+          ball.vy *= -0.78;
+        }
+        if (ball.x < court.left + ball.r || ball.x > court.right - ball.r) {
+          ball.x = Math.max(court.left + ball.r, Math.min(court.right - ball.r, ball.x));
+          ball.vx *= -0.75;
+        }
+
+        const crossedNet = (ball.x - ball.vx * dt < court.netX && ball.x >= court.netX) ||
+          (ball.x - ball.vx * dt > court.netX && ball.x <= court.netX);
+        if (crossedNet) {
+          if (ball.z < 108) {
+            ball.x = ball.vx > 0 ? court.netX - 2 : court.netX + 2;
+            ball.vx *= -0.58;
+            ball.vz = Math.max(ball.vz, 95);
+            rallyMessage = "¡RED!";
+            messageTimer = 0.55;
+          } else {
+            serveInFlight = false;
+            resetTouches(ball.vx > 0 ? "red" : "blue");
+          }
+        }
+      }
+
+      function drawCourt() {
+        const grass = ctx.createLinearGradient(0, court.top, 0, court.bottom);
+        grass.addColorStop(0, "#2c8a58");
+        grass.addColorStop(1, "#176443");
+        ctx.fillStyle = "#163d35";
+        ctx.fillRect(0, 0, W, H);
+
+        // Franjas del césped para dar profundidad a la cancha.
+        ctx.fillStyle = "rgba(255,255,255,.035)";
+        for (let i = 0; i < 8; i++) {
+          if (i % 2 === 0) ctx.fillRect(court.left + i * 100, court.top, 100, court.bottom - court.top);
+        }
+        ctx.fillStyle = grass;
+        ctx.fillRect(court.left, court.top, court.right - court.left, court.bottom - court.top);
+
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.lineWidth = 5;
+        ctx.strokeRect(court.left, court.top, court.right - court.left, court.bottom - court.top);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(court.netX, court.top);
+        ctx.lineTo(court.netX, court.bottom);
+        ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 8]);
+        ctx.beginPath();
+        ctx.moveTo(court.left, 300);
+        ctx.lineTo(court.right, 300);
+        ctx.strokeStyle = "rgba(255,255,255,.2)";
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = "rgba(255,255,255,.13)";
+        ctx.font = "800 27px Trebuchet MS, Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("AZUL", 300, 145);
+        ctx.fillText("ROJO", 700, 145);
+
+        // Postes, sombra y malla central.
+        ctx.fillStyle = "#dce6db";
+        ctx.fillRect(court.netX - 5, court.top - 10, 10, court.bottom - court.top + 20);
+        ctx.fillStyle = "rgba(3,14,17,.32)";
+        ctx.fillRect(court.netX - 2, court.top, 4, court.bottom - court.top);
+        ctx.strokeStyle = "rgba(255,255,255,.42)";
+        ctx.lineWidth = 1;
+        for (let y = court.top + 8; y < court.bottom; y += 14) {
+          ctx.beginPath();
+          ctx.moveTo(court.netX - 12, y);
+          ctx.lineTo(court.netX + 12, y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#f3f5e9";
+        ctx.fillRect(court.netX - 13, court.top - 12, 26, 7);
+        ctx.fillRect(court.netX - 13, court.bottom + 5, 26, 7);
+      }
+
+      function drawPlayer(player, index) {
+        const blue = player.team === "blue";
+        const jersey = blue ? "#23a9e7" : "#ed514d";
+        const outline = blue ? "#b8efff" : "#ffd0ca";
+        const selected = player.controlled;
+        const bounce = player.swing > 0 ? Math.sin(player.swing / 0.28 * Math.PI) * 8 : 0;
+        const px = player.x;
+        const py = player.y - bounce;
+
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.beginPath();
+        ctx.ellipse(px, player.y + 17, 18, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (selected) {
+          ctx.strokeStyle = "rgba(255,209,102,.9)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(px, player.y, 26, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Cabeza circular, camiseta rectangular y extremidades lineales.
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(px - 8, py + 18);
+        ctx.lineTo(px - 13, py + 32);
+        ctx.moveTo(px + 8, py + 18);
+        ctx.lineTo(px + 13, py + 32);
+        ctx.moveTo(px - 10, py + 10);
+        ctx.lineTo(px - 20, py + 20);
+        ctx.moveTo(px + 10, py + 10);
+        ctx.lineTo(px + 20, py + 20);
+        ctx.stroke();
+
+        ctx.fillStyle = jersey;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(px - 13, py - 4, 26, 27, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#f0bf99";
+        ctx.beginPath();
+        ctx.arc(px, py - 13, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#5b3830";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 11px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(String(index % 3 + 1), px, py + 14);
+        if (selected) {
+          ctx.font = "bold 10px Arial";
+          ctx.fillStyle = "#ffe28a";
+          ctx.fillText("TÚ", px, py - 32);
+        }
+      }
+
+      function drawBall() {
+        // Reserva espacio para la altura del balón sin cortar su trayectoria parabólica.
+        const screenX = Math.max(ball.r + 2, Math.min(W - ball.r - 2, ball.x));
+        const screenY = ball.y - ball.z * 0.4;
+        ctx.fillStyle = `rgba(0,0,0,${Math.max(.06, .23 - ball.z / 850)})`;
+        ctx.beginPath();
+        ctx.ellipse(ball.x, ball.y + 3, 12 + ball.z * .025, 5 + ball.z * .01, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(screenX, screenY);
+        ctx.rotate(performance.now() / 260);
+        ctx.fillStyle = "#fffdf1";
+        ctx.strokeStyle = "#26363b";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-12, -4);
+        ctx.quadraticCurveTo(0, 0, 8, -11);
+        ctx.moveTo(-8, 11);
+        ctx.quadraticCurveTo(0, 1, 12, 5);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawAimTarget() {
+        const targetY = court.top + 55 + aimLane * ((court.bottom - court.top - 110) / 2);
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = "rgba(69,214,220,.3)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(court.netX + 24, targetY);
+        ctx.lineTo(court.right - 42, targetY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = "#45d6dc";
+        ctx.fillStyle = "rgba(69,214,220,.22)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(court.right - 58, targetY, 17, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(court.right - 58, targetY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawMessage() {
+        if (messageTimer <= 0 || !rallyMessage) return;
+        const isWinner = rallyMessage === "¡GANADOR!";
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = `900 ${isWinner ? 48 : 40}px Trebuchet MS, Arial`;
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "rgba(0,0,0,.56)";
+        ctx.strokeText(rallyMessage, W / 2, 74);
+        ctx.fillStyle = rallyMessage === "¡REMATE!" ? "#ffd166" : "#ffffff";
+        ctx.fillText(rallyMessage, W / 2, 74);
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        drawCourt();
+        drawAimTarget();
+        players.forEach(drawPlayer);
+        drawBall();
+        drawMessage();
+      }
+
+      function frame(time) {
+        const dt = Math.min((time - previousTime) / 1000 || 0, 0.035);
+        previousTime = time;
+
+        if (state === "playing") {
+          players.forEach((player, index) => updatePlayer(player, dt, index));
+          updateBall(dt);
+        } else if (state === "point") {
+          pointTimer -= dt;
+          if (pointTimer <= 0) {
+            state = "serve";
+            serveTimer = 0.65;
+            serveInFlight = false;
+            resetPositions();
+            rallyMessage = "¡SAQUE!";
+            messageTimer = 0.9;
+            statusText.textContent = `Saque de ${serving === "blue" ? "AZUL" : "ROJO"}...`;
+          }
+        } else if (state === "serve") {
+          serveTimer -= dt;
+          if (serveTimer <= 0) launchServe();
+        }
+        if (messageTimer > 0 && state !== "winner") messageTimer -= dt;
+        draw();
+        requestAnimationFrame(frame);
+      }
+
+      function updateMovementKey(event, pressed) {
+        const key = event.key.toLowerCase();
+        if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+          event.preventDefault();
+        }
+        if (pressed) keys.add(key);
+        else keys.delete(key);
+      }
+
+      window.addEventListener("keydown", event => {
+        updateMovementKey(event, true);
+        if (event.repeat) return;
+        const key = event.key.toLowerCase();
+        if (key === "1" || key === "2" || key === "3") selectPosition(Number(key) - 1);
+        if (key === "j") selectAim(0);
+        if (key === "k") selectAim(1);
+        if (key === "l") selectAim(2);
+        if (key === "escape") togglePause();
+        if (key === " " && state === "playing") tryHit(players[controlledPosition], false);
+        if (key === "e" && state === "playing") tryHit(players[controlledPosition], true);
+      });
+      window.addEventListener("keyup", event => updateMovementKey(event, false));
+      window.addEventListener("blur", () => keys.clear());
+
+      document.getElementById("startButton").addEventListener("click", startMatch);
+      document.getElementById("overlayStart").addEventListener("click", () => {
+        if (state === "paused") togglePause();
+        else startMatch();
+      });
+      document.getElementById("pauseButton").addEventListener("click", togglePause);
+      document.getElementById("resetButton").addEventListener("click", resetMatch);
+      document.getElementById("menuButton").addEventListener("click", returnToMenu);
+      positionButtons.forEach((button, index) => {
+        button.addEventListener("click", () => selectPosition(index));
+      });
+      aimButtons.forEach((button, index) => {
+        button.addEventListener("click", () => selectAim(index));
+      });
+      difficultyButtons.forEach(button => {
+        button.addEventListener("click", () => selectDifficulty(button.dataset.difficulty));
+      });
+
+      function showInstructions() {
+        const wasPlaying = state === "playing" || state === "point";
+        if (wasPlaying) state = "paused";
+        showOverlay("INSTRUCCIONES", "El saque se realiza automáticamente al iniciar cada jugada. Elige la posición azul 1, 2 o 3 con los botones o las teclas 1, 2 y 3; la posición marcada con TÚ es la que controlas con W, A, S y D. Elige si enviar el balón arriba, al centro o abajo con los botones o J, K y L. Acércate a la pelota y pulsa ESPACIO para devolverla; pulsa E cerca de ella para rematar en la dirección elegida. Cada equipo puede dar hasta 3 toques antes de devolverla por encima de la red: el cuarto toque concede un punto al rival. Gana al llegar a 12 con dos puntos de ventaja. ESC pausa o continúa.", false);
+        statusText.textContent = "Instrucciones";
+      }
+      document.getElementById("instructionsButton").addEventListener("click", showInstructions);
+      document.getElementById("overlayInstructions").addEventListener("click", showInstructions);
+
+      document.getElementById("soundButton").addEventListener("click", event => {
+        soundEnabled = !soundEnabled;
+        const button = event.currentTarget;
+        button.textContent = soundEnabled ? "Sonido: encendido" : "Sonido: apagado";
+        button.classList.toggle("sound-on", soundEnabled);
+        button.setAttribute("aria-pressed", String(soundEnabled));
+        if (soundEnabled) playTone(440, 0.08);
+      });
+
+      document.querySelectorAll(".mobile-controls button").forEach(button => {
+        const key = button.dataset.key;
+        button.addEventListener("pointerdown", event => {
+          event.preventDefault();
+          keys.add(key);
+          button.setPointerCapture(event.pointerId);
+        });
+        const release = () => keys.delete(key);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("lostpointercapture", release);
+      });
+
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+      resetPositions();
+      updateScoreboard();
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
